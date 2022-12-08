@@ -5,13 +5,13 @@ import app from '../server';
 
 const req = supertest(app);
 
-beforeEach(() => {
-  const thumDir = path.join(__dirname, '../images/thumb');
-  const thumbs = fs.readdirSync(thumDir);
-  if (thumbs.length > 0) {
-    thumbs.forEach((thumb) => fs.unlinkSync(`${thumDir}/${thumb}`));
-  }
-});
+// beforeEach(() => {
+//   const thumDir = path.join(__dirname, '../images/thumb');
+//   const thumbs = fs.readdirSync(thumDir);
+//   if (thumbs.length > 0) {
+//     thumbs.forEach((thumb) => fs.unlinkSync(`${thumDir}/${thumb}`));
+//   }
+// });
 
 describe('Conversion enpoint provides the appropriate response', () => {
   it('should return status code 400 if image is absent', async () => {
@@ -46,18 +46,16 @@ describe('Conversion enpoint provides the appropriate response', () => {
 describe('Conversion actually creates a new image', () => {
   const formats = ['JPEG', 'PNG', 'WebP', 'GIF', 'AVIF', 'TIFF'];
 
-  formats.forEach((format) => {
-    it(`should not create a ${format} image in the thumb directory after conversion if extension is not supported`, async () => {
+    it(`should not create image in the thumb directory if extension is not supported`, async () => {
       await req.get(
-        '/img-pro-api/api/v1/convert/?filename=default&height=300&width=300'
+        '/img-pro-api/api/v1/convert/?filename=default&height=300&width=300&type=SVRRR'
       );
       expect(
         fs.existsSync(
-          path.join(__dirname, `../images/thumb/default_300x300.${format}`)
+          path.join(__dirname, `../images/thumb/default_300x300.SVRRR`)
         )
       ).toBeFalsy();
     });
-  });
 
   formats.forEach((format) => {
     it(`should create a ${format} image in the thumb directory after conversion`, async () => {
