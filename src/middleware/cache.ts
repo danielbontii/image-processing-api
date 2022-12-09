@@ -8,7 +8,8 @@ const cache = async (
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const { filename, width, height } = req.query;
+  const {  width, height } = req.query;
+  const filename = req.query.filename ?? 'default';
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
   let inputPath: string = path.join(

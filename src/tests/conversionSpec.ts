@@ -60,6 +60,14 @@ describe('Conversion actually creates a new image', () => {
 });
 
 describe('Conversion from one supported type to another', () => {
+  it('should convert default if filename is missing', async () => {
+    await req.get(
+      `/img-pro-api/api/v1/convert/?height=150&width=150&input=tiff&output=avif`
+    );
+    testImg = `${imgBase}_150x150.avif`;
+    expect(fs.existsSync(testImg)).toBeTruthy();
+  });
+
   it('should not convert if input extension is not supported', async () => {
     await req.get(`${apiBase}&height=150&width=150&input=vsn&output=png`);
     testImg = `${imgBase}_150x150.png`;
@@ -120,7 +128,7 @@ describe('Dynmically handling image sizes', () => {
     result = await req.get(
       `${apiBase}&width=auto&height=160input=jpeg&output=png`
     );
-    testImg = `${imgBase}_autox160.png`
+    testImg = `${imgBase}_autox160.png`;
     expect(result.statusCode).toBe(200);
     expect(fs.existsSync(testImg)).toBeTruthy();
   });
