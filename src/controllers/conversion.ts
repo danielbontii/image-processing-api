@@ -7,19 +7,23 @@ const convert = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
-  const { filename, width, height } = req.query;
+  const { filename, width, height} = req.query;
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
+
+  const conversionWidth = isNaN(parseInt(width as string)) ? undefined : parseInt(width as string);
+  const conversionHeight = isNaN(parseInt(height as string)) ? undefined : parseInt(height as string);
  
   let inputPath:string = path.join(__dirname, `../images/${filename}.${input}`);
 
   const outputPath = path.join(
     __dirname,
-    `../images/thumb/${filename}_${width}x${height}.${output}`
+    `../images/thumb/${filename}_${conversionWidth ?? 'auto'}x${conversionHeight ?? 'auto'}.${output}`
   );
+  
 
   await sharp(inputPath)
-    .resize(parseInt(width as string), parseInt(height as string), {
+    .resize(conversionWidth, conversionHeight, {
       kernel: sharp.kernel.nearest,
       fit: 'cover'
     })
