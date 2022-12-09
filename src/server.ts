@@ -15,10 +15,13 @@ app.listen(PORT, async () => {
   try {
     if (!fs.existsSync(imgDir)) {
       fs.mkdirSync(imgDir);
-      await fsPromises.copyFile(
-        path.join(__dirname, '../default.jpeg'),
-        `${imgDir}/default.jpeg`
-      );
+      const defaults = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff']
+      defaults.forEach(async(d) =>{
+        await fsPromises.copyFile(
+          path.join(__dirname, `../defaults/default.${d}`),
+          `${imgDir}/default.${d}`
+        );
+      })
       fs.mkdirSync(`${imgDir}/thumb`);
     }
 

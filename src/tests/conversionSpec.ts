@@ -5,7 +5,7 @@ import app from '../server';
 
 const req = supertest(app);
 const apiBase = '/img-pro-api/api/v1/convert/?filename=default';
-const formats = ['jpg', 'png', 'webp', 'gif', 'avif', 'tiff'];
+const formats = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff'];
 
 // beforeEach(() => {
 //   const thumDir = path.join(__dirname, '../images/thumb');
@@ -25,7 +25,7 @@ describe('Conversion enpoint provides the appropriate response', () => {
 
   it('should return status code 400 if extension is not supported', async () => {
     const result = await req.get(
-      '/img-pro-api/api/v1/convert/?filename=default&height=300&width=200&type=SVR'
+      '/img-pro-api/api/v1/convert/?filename=default&height=300&width=200&output=SVR'
     );
     expect(result.statusCode).toBe(400);
   });
@@ -48,7 +48,7 @@ describe('Conversion enpoint provides the appropriate response', () => {
 describe('Conversion actually creates a new image', () => {
   it(`should not create image in the thumb directory if extension is not supported`, async () => {
     await req.get(
-      '/img-pro-api/api/v1/convert/?filename=default&height=300&width=300&type=SVRRR'
+      '/img-pro-api/api/v1/convert/?filename=default&height=300&width=300&output=SVRRR'
     );
     expect(
       fs.existsSync(
@@ -60,7 +60,7 @@ describe('Conversion actually creates a new image', () => {
   formats.forEach((format) => {
     it(`should create a ${format} image in the thumb directory after conversion`, async () => {
       await req.get(
-        `/img-pro-api/api/v1/convert/?filename=default&height=300&width=200&type=${format}`
+        `/img-pro-api/api/v1/convert/?filename=default&height=300&width=200&output=${format}`
       );
       expect(
         fs.existsSync(
@@ -72,8 +72,37 @@ describe('Conversion actually creates a new image', () => {
 });
 
 describe('Conversion from one supported type to another', () => {
+  it('should not convert input extension is not supported', async() => {
+    await req.get(
+      `${apiBase}&height=150&width=150&input=vsn&output=png`
+    );
+    expect(
+      fs.existsSync(
+        path.join(__dirname, `../images/thumb/default_150x150.png`)
+      )
+    ).toBeFalsy();
+  });
+
+  it('should not convert if  output extension is not supported', async() => {
+    await req.get(
+      `${apiBase}&height=150&width=150&input=png&output=tdd`
+    );
+    expect(
+      fs.existsSync(
+        path.join(__dirname, `../images/thumb/default_150x150.png`)
+      )
+    ).toBeFalsy();
+  });
+
+  it('should convert jpeg to specified format if input is missing', async () => {
+    await req.get(`${apiBase}&height=450&width=450&output=png`);
+    expect(
+      fs.existsSync(path.join(__dirname, `../images/thumb/default_450x450.png`))
+    ).toBeTruthy();
+  });
+
   for (let i = 0; i < formats.length; i++) {
-    const output = formats[formats.length -1 - i];
+    const output = formats[formats.length - 1 - i];
     const input = formats[i];
 
     it(`should be able to convert from ${input} to ${output}`, async () => {

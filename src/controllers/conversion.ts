@@ -8,16 +8,17 @@ const convert = async (
   res: Response
 ): Promise<Response | void> => {
   const { filename, width, height } = req.query;
-  const type = req.query.type ?? 'jpg';
+  const output = req.query.output ?? 'jpeg';
+  const input = req.query.input ?? 'jpeg';
  
-  const input = path.join(__dirname, `../images/${filename}.jpeg`);
+  let inputPath:string = path.join(__dirname, `../images/${filename}.${input}`);
 
   const outputPath = path.join(
     __dirname,
-    `../images/thumb/${filename}_${width}x${height}.${type}`
+    `../images/thumb/${filename}_${width}x${height}.${output}`
   );
 
-  await sharp(input)
+  await sharp(inputPath)
     .resize(parseInt(width as string), parseInt(height as string), {
       kernel: sharp.kernel.nearest,
       fit: 'cover'
