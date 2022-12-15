@@ -8,7 +8,7 @@ const cache = async (
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-  const {  width, height } = req.query;
+  const { width, height } = req.query;
   const filename = req.query.filename ?? 'default';
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
@@ -18,14 +18,20 @@ const cache = async (
   );
 
   const formats = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff'];
-  
+
   if (
     !formats.includes((output as string).toLowerCase()) ||
     !formats.includes((input as string).toLowerCase())
   ) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .send(`Sorry, We don't support the .${output} extension yet`);
+    if (formats.includes((output as string).toLowerCase())) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .render('pages/unsupported', { ext: req.query.input });
+    } else {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .render('pages/unsupported', { ext: req.query.output });
+    }
   }
 
   if (!fs.existsSync(inputPath)) {
@@ -35,7 +41,7 @@ const cache = async (
   if (!fs.existsSync(inputPath)) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .send(`Oh ohh, We don't have a pictures of ${filename}`);
+      .render('pages/noimage', { ext: input, filename: filename });
   }
 
   if (!width && !height) {
