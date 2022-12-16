@@ -59,6 +59,16 @@ const cache = async (
     return;
   }
 
+  req.filename = filename as string;
+  req.output = output as string;
+  req.input = input as string;
+  req.conversionWidth = isNaN(parseInt(width as string))
+    ? undefined
+    : parseInt(width as string);
+  req.conversionHeight = isNaN(parseInt(height as string))
+    ? undefined
+    : parseInt(height as string);
+
   next();
 };
 

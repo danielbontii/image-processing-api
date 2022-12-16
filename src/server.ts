@@ -13,17 +13,16 @@ app.use('/img-pro-api/api/v1', routes);
 
 app.listen(PORT, async () => {
   const imgDir = path.join(__dirname, '/images');
-
   try {
     if (!fs.existsSync(imgDir)) {
       fs.mkdirSync(imgDir);
-      const defaults = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff']
-      defaults.forEach(async(d) =>{
-        await fsPromises.copyFile(
+      const defaults = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff'];
+      defaults.forEach((d) => {
+        fsPromises.copyFile(
           path.join(__dirname, `../defaults/default.${d}`),
           `${imgDir}/default.${d}`
         );
-      })
+      });
       fs.mkdirSync(`${imgDir}/thumb`);
     }
 
