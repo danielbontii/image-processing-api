@@ -35,7 +35,7 @@ If the output is not specified, the input image will be converted to the jpeg fo
 
 ## Example API Routes
 
-BASE ROUTE: /img-pro-api/api/v1/convert
+BASE ROUTE: host:port/img-pro-api/api/v1/convert where host and port come from the platform on which ther server is running. Default is localhost:5000
 
 | ROUTE   |      VERB      |  ACTION |
 |:----------|:-------------|:------|
