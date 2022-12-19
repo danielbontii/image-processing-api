@@ -6,7 +6,7 @@ declare module 'express' {
     filename?: string;
     input?: string;
     output?: string;
-    conversionWidth?: number | undefined;
-    conversionHeight?: number | undefined;
+    conversionWidth?: number;
+    conversionHeight?: number;
   }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import sharp from 'sharp';
-import path from 'path';
+import convertsion from '../services/conversion';
+
 import { StatusCodes } from 'http-status-codes';
 
 const convert = async (
@@ -8,29 +8,14 @@ const convert = async (
   res: Response
 ): Promise<Response | void> => {
   try {
-    const filename = req.filename;
-    const conversionWidth = req.conversionWidth;
-    const conversionHeight = req.conversionHeight;
-
-    const inputPath: string = path.join(
-      __dirname,
-      `../images/${filename}.${req.input}`
+    const convertedImgPath = await convertsion.convert(
+      req.filename,
+      req.conversionWidth,
+      req.conversionHeight,
+      req.output as string,
+      req.input as string
     );
-
-    const outputPath = path.join(
-      __dirname,
-      `../images/thumb/${req.filename}_${conversionWidth ?? 'auto'}x${
-        conversionHeight ?? 'auto'
-      }.${req.output}`
-    );
-
-    await sharp(inputPath)
-      .resize(conversionWidth, conversionHeight, {
-        kernel: sharp.kernel.nearest,
-        fit: 'cover'
-      })
-      .toFile(outputPath);
-    res.status(StatusCodes.OK).sendFile(outputPath);
+    res.status(StatusCodes.OK).sendFile(convertedImgPath);
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('pages/error');
   }
