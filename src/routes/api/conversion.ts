@@ -4,6 +4,8 @@ import cache from '../../middleware/cache';
 
 const conversionRoutes = Router();
 
-conversionRoutes.route('/').get(cache, convert);
+conversionRoutes
+  .route('/')
+  .get(cache.validateDimensions, cache.validateFormat, cache.lookup, convert);
 
 export default conversionRoutes;

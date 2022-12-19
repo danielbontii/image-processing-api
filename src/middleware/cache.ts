@@ -3,21 +3,35 @@ import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
 import path from 'path';
 
-const cache = async (
+const validateDimensions = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
   const { width, height } = req.query;
-  // console.log(`${width}, ${height}`)
-  // console.log(typeof height)
-  const filename = req.query.filename ?? 'default';
+  
+  const acceptedDimensions: [undefined, string] = [undefined, 'auto'];
+
+  if (
+    (!acceptedDimensions.includes(width as string | undefined) &&
+      isNaN(parseInt(width as string))) ||
+    (!acceptedDimensions.includes(height as string | undefined) &&
+      isNaN(parseInt(height as string)))
+  ) {
+    return res.status(StatusCodes.BAD_REQUEST).send('invalid height or width');
+  }
+
+  next();
+};
+
+const validateFormat = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
-  let inputPath: string = path.join(
-    __dirname,
-    `../images/${filename}.${input}`
-  );
 
   const formats = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff'];
 
@@ -36,16 +50,23 @@ const cache = async (
     }
   }
 
-  const acceptedDimensions: [undefined, string] = [undefined, 'auto'];
+  next();
+};
 
-  if (
-    (!acceptedDimensions.includes(width as string | undefined) &&
-      isNaN(parseInt(width as string))) ||
-    (!acceptedDimensions.includes(height as string | undefined) &&
-      isNaN(parseInt(height as string)))
-  ) {
-    return res.status(StatusCodes.BAD_REQUEST).send('invalid height or width');
-  }
+const lookup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  const { width, height } = req.query;
+
+  const filename = req.query.filename ?? 'default';
+  const output = req.query.output ?? 'jpeg';
+  const input = req.query.input ?? 'jpeg';
+  let inputPath: string = path.join(
+    __dirname,
+    `../images/${filename}.${input}`
+  );
 
   if (!fs.existsSync(inputPath)) {
     inputPath = path.join(__dirname, `../images/${filename}.jpeg`);
@@ -85,4 +106,4 @@ const cache = async (
   next();
 };
 
-export default cache;
+export default {validateDimensions, validateFormat, lookup};

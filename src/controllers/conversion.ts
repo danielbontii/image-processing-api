@@ -17,6 +17,7 @@ const convert = async (
     );
     res.status(StatusCodes.OK).sendFile(convertedImgPath);
   } catch (error) {
+    console.log(error);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('pages/error');
   }
 };

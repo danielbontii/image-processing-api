@@ -29,6 +29,7 @@ const convert = async (
       .toFile(outputPath);
     return outputPath;
   } catch (error) {
+    console.log(error);
     throw new Error('something went wrong');
   }
 };
