@@ -9,6 +9,8 @@ const cache = async (
   next: NextFunction
 ): Promise<Response | void> => {
   const { width, height } = req.query;
+  // console.log(`${width}, ${height}`)
+  // console.log(typeof height)
   const filename = req.query.filename ?? 'default';
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
@@ -32,6 +34,17 @@ const cache = async (
         .status(StatusCodes.BAD_REQUEST)
         .render('pages/unsupported', { ext: req.query.output });
     }
+  }
+
+  const acceptedDimensions: [undefined, string] = [undefined, 'auto'];
+
+  if (
+    (!acceptedDimensions.includes(width as string | undefined) &&
+      isNaN(parseInt(width as string))) ||
+    (!acceptedDimensions.includes(height as string | undefined) &&
+      isNaN(parseInt(height as string)))
+  ) {
+    return res.status(StatusCodes.BAD_REQUEST).send('invalid height or width');
   }
 
   if (!fs.existsSync(inputPath)) {
