@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import convertsion from '../services/conversion';
 
 import { StatusCodes } from 'http-status-codes';
 
 const convert = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<Response | void> => {
   try {
     const convertedImgPath = await convertsion.convert(
@@ -17,8 +18,7 @@ const convert = async (
     );
     res.status(StatusCodes.OK).sendFile(convertedImgPath);
   } catch (error) {
-    console.log(error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('pages/error');
+    next(new Error());
   }
 };
 

@@ -43,13 +43,17 @@ describe('Conversion enpoint provides the appropriate response', () => {
   });
 
   it('should return status code 400 if height is invalid', async () => {
-    const result = await req.get(`${apiBase}&width=200&output=png&height=myheight`);
+    const result = await req.get(
+      `${apiBase}&width=200&output=png&height=myheight`
+    );
     testImg = `${imgBase}_200x300.png`;
     expect(result.statusCode).toBe(400);
   });
 
   it('should return status code 400 if width is invalid', async () => {
-    const result = await req.get(`${apiBase}&height=300&width=customwidth&output=png`);
+    const result = await req.get(
+      `${apiBase}&height=300&width=customwidth&output=png`
+    );
     testImg = `${imgBase}_200x300.png`;
     expect(result.statusCode).toBe(400);
   });

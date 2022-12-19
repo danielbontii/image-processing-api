@@ -1,7 +1,8 @@
-import express from 'express';
-import routes from './routes';
 import fs, { promises as fsPromises } from 'fs';
+import express from 'express';
 import path from 'path';
+
+import routes from './routes';
 
 const app = express();
 

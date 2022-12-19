@@ -1,6 +1,8 @@
 import conversionRoutes from './api/conversion';
-import notFound from '../middleware/not-found';
 import { Router } from 'express';
+
+import notFound from '../middleware/not-found';
+import errorHandlerMiddleware from '../middleware/error-handler';
 
 const routes = Router();
 
@@ -10,5 +12,6 @@ routes.get('/', (_req, res) => {
 
 routes.use('/convert', conversionRoutes);
 routes.use(notFound);
+routes.use(errorHandlerMiddleware);
 
 export default routes;

@@ -1,15 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import { StatusCodes } from 'http-status-codes';
 import path from 'path';
+
+import { StatusCodes } from 'http-status-codes';
+
+import { BadRequestError } from '../errors';
 
 const validateDimensions = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
   const { width, height } = req.query;
-  
+
   const acceptedDimensions: [undefined, string] = [undefined, 'auto'];
 
   if (
@@ -18,7 +21,11 @@ const validateDimensions = async (
     (!acceptedDimensions.includes(height as string | undefined) &&
       isNaN(parseInt(height as string)))
   ) {
-    return res.status(StatusCodes.BAD_REQUEST).send('invalid height or width');
+    next(
+      new BadRequestError(
+        'Please ensure height and width are valid or not specified at all'
+      )
+    );
   }
 
   next();
@@ -26,10 +33,9 @@ const validateDimensions = async (
 
 const validateFormat = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<Response | void> => {
-
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
 
@@ -40,13 +46,17 @@ const validateFormat = async (
     !formats.includes((input as string).toLowerCase())
   ) {
     if (formats.includes((output as string).toLowerCase())) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .render('pages/unsupported', { ext: req.query.input });
+      next(
+        new BadRequestError(
+          `Sorry, we don't support ${req.query.input} extension yet`
+        )
+      );
     } else {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .render('pages/unsupported', { ext: req.query.output });
+      next(
+        new BadRequestError(
+          `Sorry, we don't support ${req.query.output} extension yet`
+        )
+      );
     }
   }
 
@@ -63,9 +73,10 @@ const lookup = async (
   const filename = req.query.filename ?? 'default';
   const output = req.query.output ?? 'jpeg';
   const input = req.query.input ?? 'jpeg';
+
   let inputPath: string = path.join(
     __dirname,
-    `../images/${filename}.${input}`
+    `../images/${filename}.${input}er`
   );
 
   if (!fs.existsSync(inputPath)) {
@@ -73,9 +84,11 @@ const lookup = async (
   }
 
   if (!fs.existsSync(inputPath)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .render('pages/noimage', { ext: input, filename: filename });
+    next(
+      new BadRequestError(
+        `Sorry, we don't have any ${input} images of ${filename}`
+      )
+    );
   }
 
   if (!width && !height) {
@@ -106,4 +119,4 @@ const lookup = async (
   next();
 };
 
-export default {validateDimensions, validateFormat, lookup};
+export default { validateDimensions, validateFormat, lookup };
