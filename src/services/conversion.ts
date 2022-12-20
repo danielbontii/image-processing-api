@@ -1,8 +1,6 @@
 import sharp from 'sharp';
 import path from 'path';
 
-// import { CustomError } from '../errors';
-
 const convert = async (
   filename: string | undefined,
   conversionWidth: number | undefined,

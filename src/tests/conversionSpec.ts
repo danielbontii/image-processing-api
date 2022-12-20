@@ -1,13 +1,17 @@
 import supertest from 'supertest';
 import fs from 'fs';
 import path from 'path';
+
 import app from '../server';
+import conversionService from '../services/conversion';
 
 const req = supertest(app);
 const apiBase = '/img-pro-api/api/v1/convert/?filename=default';
 const formats = ['jpeg', 'png', 'webp', 'gif', 'avif', 'tiff'];
 let testImg: string | null;
 const imgBase = path.join(__dirname, '../images/thumb/default');
+
+const filename = 'default';
 
 afterEach(() => {
   if (testImg && fs.existsSync(testImg)) {
@@ -61,14 +65,13 @@ describe('Conversion enpoint provides the appropriate response', () => {
 
 describe('Conversion actually creates a new image', () => {
   it(`should not create image in the thumb directory if extension is not supported`, async () => {
-    await req.get(`${apiBase}&height=300&width=300&output=SVRRR`);
     testImg = `${imgBase}_300x300.svrrr`;
     expect(fs.existsSync(`${imgBase}_300x300.SVRRR`)).toBeFalsy();
   });
 
   formats.forEach((format) => {
     it(`should create a ${format} image in the thumb directory after conversion`, async () => {
-      await req.get(`${apiBase}&height=300&width=200&output=${format}`);
+      await conversionService.convert(filename, 200, 300, format, 'jpeg');
       testImg = `${imgBase}_200x300.${format}`;
       expect(fs.existsSync(`${imgBase}_200x300.${format}`)).toBeTruthy();
     });
@@ -107,9 +110,7 @@ describe('Conversion from one supported type to another', () => {
     const input = formats[i];
 
     it(`should be able to convert from ${input} to ${output}`, async () => {
-      await req.get(
-        `${apiBase}&height=250&width=200&input=${input}&output=${output}`
-      );
+      await conversionService.convert(filename, 200, 250, output, input);
       testImg = `${imgBase}_200x250.${output}`;
       expect(fs.existsSync(testImg)).toBeTruthy();
     });
